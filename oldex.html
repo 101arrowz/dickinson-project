@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>There's a certain Slant of light</title>
+    <style type="text/css">
+        body, html {
+            margin: 0;
+            border: 0;
+        }
+        body {
+            width: 100vw;
+            height: 70vh;
+            background: #aab2bd;
+        }
+        .sun {
+            border-radius: 50%;
+            width: 10vw;
+            height: 10vw;
+            background: /*#FFBA03*/ white;
+            box-shadow:
+                0 0 40vw 20vw #d97305,
+                0 0 5vw 1vw #F7B204,
+                inset 0 0 5vw 1vw #F7B204,
+                inset 0 0 5vw 1.5vw #FFF793;
+            position: absolute;
+            left: 67vw;
+            top: 20vh;
+            filter: blur(0.5px);
+        }
+        .window-frame {
+            border: 1px solid brown;
+        }
+    </style>
+</head>
+<body>
+    <div class="sun"></div>
+    <table class="window-frame">
+        <tr>
+            <td class="window-pane">a</td>
+            <td class="window-pane">b</td>
+        </tr>
+        <tr>
+            <td class="window-pane">c</td>
+            <td class="window-pane">d</td>
+        </tr>
+    </table>
+</body>
+</html>
