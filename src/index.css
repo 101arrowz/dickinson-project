@@ -8,3 +8,6 @@ body {
     font-family: 'IM Fell English SC', serif;
     background-color: black;
 }
+.tooltip {
+    max-width: 60vw;
+}

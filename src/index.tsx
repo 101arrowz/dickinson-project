@@ -1,9 +1,11 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, ReactNode } from 'react';
 import { render } from 'react-dom';
+import ReactTooltip from 'react-tooltip';
 import './index.css'
 import bg from './bg.jpg';
 import bg2 from './bg2.jpg';
 import bg3 from './bg3.jpg';
+import bg4 from './bg4.jpg';
 import bg5 from './bg5.jpg';
 import bg6 from './bg6.jpg';
 import organ from 'url:./out.mp3';
@@ -13,8 +15,22 @@ const bgs = {
     0.8: `url(${bg})`,
     1.9: `url(${bg2})`,
     2.8: `url(${bg3})`,
+    3.8: `url(${bg4})`,
     4.8: `url(${bg5})`,
     5.8: `url(${bg6})`
+};
+
+const Help = ({ help, children }: { help: string, children: ReactNode }) => {
+    const [hover, setHover] = useState(false);
+    const tooltipID = useMemo(() => Math.random().toString().slice(2, 15), []);
+    return <>
+        <span data-tip data-for={tooltipID} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} style={{
+            textDecoration: hover ? 'underline' : 'none'
+        }}>{children}</span>
+        <ReactTooltip id={tooltipID} effect="solid" multiline className="tooltip">
+            <span style={{ fontSize: '1.5em', fontFamily: "'Roboto', Arial, sans-serif" }}>{help}</span>
+        </ReactTooltip>
+    </>;
 };
 
 const bgVals = (Object.entries(bgs).map(([a, b]) => [+a, b]) as [number, string][]).sort((a, b) => a[0] - b[0]);
@@ -36,6 +52,49 @@ const getBG = (pos: number) => {
     }
     const crossRatio = (lastBg[0] - pos) / threshold;
     return `-webkit-cross-fade(${lastBg[1]}, ${slastBg[1]}, ${crossRatio * 100}%)`
+}
+
+const StartButton = () => {
+    const [hover, setHover] = useState(false);
+    return <div onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} onClick={() => {
+        let lastScrollY = -1;
+        const organAudio = new Audio(organ);
+        organAudio.play();
+        organAudio.loop = true;
+        organAudio.volume = 0;
+        const onInterval = () => {
+            if (window.scrollY == lastScrollY) {
+                const int2 = setInterval(() => {
+                    if ((organAudio.volume -= 0.002) < 0.01) {
+                        organAudio.pause();
+                        clearInterval(int2);
+                    }
+                }, 10);
+            } else {
+                organAudio.volume = Math.min(1, window.scrollY / (window.innerHeight * 1.8));
+                lastScrollY = window.scrollY;
+                window.scrollTo({
+                    top: window.scrollY + 1,
+                    left: 0
+                });
+                setTimeout(onInterval, 16000 / window.innerHeight);
+            }
+        }
+        onInterval();
+    }} style={{
+        fontFamily: "'Roboto', Arial, sans-serif",
+        background: `rgba(127, 127, 127, ${hover ? 0.8 : 0.4})`,
+        transition: 'background-color 300ms ease-in-out',
+        width: '100%',
+        padding: '0.25em',
+        paddingLeft: '0.5em',
+        paddingRight: '0.5em',
+        borderRadius: '0.1em',
+        display: 'inline',
+        marginTop: '2em',
+        fontSize: '0.5em',
+        cursor: 'pointer'
+    }}>Start</div>
 }
 
 const App = () => {
@@ -67,34 +126,7 @@ const App = () => {
                 }}>
                     <span style={{fontStyle: 'italic'}}>There's a certain Slant of <span style={{ textShadow: '0 0 3px white, 0 0 9px white, 0 0 15px white' }}>light</span>,</span> (320)<br />
                     <div style={{fontSize: '0.5em'}}>website by arjun barrett</div>
-                    <button onClick={() => {
-                        let lastScrollY = -1;
-                        const organAudio = new Audio(organ);
-                        organAudio.play();
-                        organAudio.loop = true;
-                        organAudio.volume = 0;
-                        const onInterval = () => {
-                            if (window.scrollY == lastScrollY) {
-                                const int2 = setInterval(() => {
-                                    if ((organAudio.volume -= 0.002) < 0.01) {
-                                        organAudio.pause();
-                                        clearInterval(int2);
-                                    }
-                                }, 10);
-                            } else {
-                                organAudio.volume = Math.min(1, window.scrollY / (window.innerHeight * 1.8));
-                                lastScrollY = window.scrollY;
-                                window.scrollTo({
-                                    top: window.scrollY + 1,
-                                    left: 0
-                                });
-                                setTimeout(onInterval, 16000 / window.innerHeight);
-                            }
-                        }
-                        onInterval();
-                    }} style={{
-
-                    }}>Start</button>
+                    <StartButton />
                 </div>
 
                 <div style={{
@@ -110,16 +142,16 @@ const App = () => {
                     paddingBottom: '100vh',
                     height: 0
                 }}>
-                    That oppresses, like the Heft<br />
-                    Of Cathedral Tunes –
+                    That <Help help="Dickinson explains here that winter afternoons give her a sense of dread and melancholy. She compares this feeling to that of hearing an organ playing in a cathedral.">oppresses, like the Heft<br />
+                    Of Cathedral Tunes –</Help>
                 </div>
 
                 <div style={{
                     paddingBottom: '100vh',
                     height: 0
                 }}>
-                    Heavenly Hurt, it gives us –<br />
-                    We can find no scar,<br />
+                    <Help help="This oxymoronic statement reflects Dickinson's conflicted feelings about death, as she is uncertain about the existence of an afterlife. Indeed, Dickinson challenges the popular notion of Heaven in many of her poems.">Heavenly Hurt</Help>, it gives us –<br />
+                    <Help help={'Most people conceal their feelings of existential dread, hence they bear no outward "scar".'}>We can find no scar,</Help><br />
                     But internal difference –<br />
                     Where the Meanings, are –
                 </div>
@@ -128,10 +160,10 @@ const App = () => {
                     paddingBottom: '100vh',
                     height: 0
                 }}>
-                    None may teach it – Any –<br />
-                    'Tis the seal Despair –<br />
+                    <Help help="The real impact of this feeling of hopelessness is very personal and can only be felt individually.">None may teach it – Any –<br />
+                    'Tis the seal Despair –<br /></Help>
                     An imperial affliction<br />
-                    Sent us of the Air –
+                    Sent us <Help help="These feelings of despair occur for so many people seemingly out of nowhere. Dickinson finds them so abundant that they could only from something as ubiquitous as the air.">of the Air –</Help>
                 </div>
 
 
@@ -139,16 +171,16 @@ const App = () => {
                     paddingBottom: '100vh',
                     height: 0
                 }}>
-                    When it comes, the Landscape listens –<br />
-                    Shadows – hold their breath –
+                    When it comes, <Help help="Even the natural world is powerless to the cycle of life, Dickinson professes. Death is inevitable, and once a life is lived, it cannot be changed, and one cannot be sure of a chance at a new life after death. Dickinson's ideas, as usual, fly in the face of the Christian beliefs held by most people of the era, her family included.">the Landscape listens –<br />
+                    Shadows – hold their breath –</Help>
                 </div>
 
                 <div style={{
                     paddingBottom: '60vh',
                     height: 0
                 }}>
-                    When it goes, 'tis like the Distance<br />
-                    On the look of Death –
+                    When it goes, 'tis like the <Help help="Even when she stops contemplating death, Dickinson's feeling of hopelessness leaves a psychological mark; she feels as empty and detached from reality as a corpse.">Distance<br />
+                    On the look of Death –</Help>
                 </div>
             </div>
         </div>
